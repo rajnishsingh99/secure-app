@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure App</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
+    .card { max-width:450px; margin:50px auto; background:#fff; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); padding:20px; }
+    input, button { width:100%; padding:10px; font-size:15px; margin-top:10px; border-radius:6px; border:1px solid #ddd; }
+    button { background:#007bff; color:#fff; border:none; cursor:pointer; }
+    button:hover { background:#0056b3; }
+    p { margin-top:10px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Submit Data</h2>
+    <input id="name" placeholder="Enter Name">
+    <input id="value" placeholder="Enter Value">
+    <button onclick="sendData()">Submit</button>
+    <p id="msg"></p>
+  </div>
 
+  <script>
+    // 👇 Aapka Google Apps Script link (Base64 me hidden)
+    const encodedURL = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6QmVDUzJyTmU5NlNRWFJ0bW5pbGtfOHA2aUo4VmRkUld1RV9JZU93Qk9ZUk5XSGZwVk5ZdFFDdDFZTFRGVGFlN3EvZXhlYw==";
+    const scriptURL = atob(encodedURL); // Decode link
+
+    async function sendData() {
+      const name = document.getElementById("name").value;
+      const value = document.getElementById("value").value;
+      const msg = document.getElementById("msg");
+      msg.textContent = "Submitting...";
+
+      try {
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, value }),
+        });
+        const data = await res.json();
+        msg.textContent = "✅ " + data.message;
+      } catch (err) {
+        msg.textContent = "❌ Error sending data.";
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
