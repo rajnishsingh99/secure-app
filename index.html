@@ -1,51 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Secure App</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Inventory (Secure)</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
-    .card { max-width:450px; margin:50px auto; background:#fff; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); padding:20px; }
-    input, button { width:100%; padding:10px; font-size:15px; margin-top:10px; border-radius:6px; border:1px solid #ddd; }
-    button { background:#007bff; color:#fff; border:none; cursor:pointer; }
-    button:hover { background:#0056b3; }
-    p { margin-top:10px; }
+    body{font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;margin:0;padding:20px}
+    .card{max-width:480px;margin:40px auto;background:#fff;padding:22px;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,0.08)}
+    input,button{width:100%;padding:10px;margin-top:10px;font-size:15px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
+    button{background:#007bff;color:#fff;border:none;cursor:pointer}
+    button:active{transform:translateY(1px)}
+    #msg{margin-top:12px;text-align:center;font-weight:600}
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>Submit Data</h2>
-    <input id="name" placeholder="Enter Name">
-    <input id="value" placeholder="Enter Value">
-    <button onclick="sendData()">Submit</button>
-    <p id="msg"></p>
+    <h2 style="text-align:center;margin:0 0 10px 0">Inventory Entry</h2>
+    <input id="name" placeholder="Your name"/>
+    <input id="item" placeholder="Item name"/>
+    <input id="qty" placeholder="Quantity" type="number"/>
+    <button id="send">Submit</button>
+    <div id="msg"></div>
   </div>
 
   <script>
-    // 👇 Aapka Google Apps Script link (Base64 me hidden)
-    const encodedURL = "https://script.google.com/macros/s/AKfycbzBeCS2rNe96SQXRtmnilk_8p6iJ8VddRWuE_IeOwBOYRNWHfpVNYtQCt1YLTFTae7q/exec";
-    const scriptURL = atob(encodedURL); // Decode link
+    // NOTE: replace BELOW_PROXY_BASE with the deployed Vercel app base (no trailing /api)
+    // Example: "https://my-app.vercel.app"
+    const PROXY_BASE = "REPLACE_WITH_YOUR_VERCEL_URL";
+    const API_URL = PROXY_BASE + "/api";
 
-    async function sendData() {
-      const name = document.getElementById("name").value;
-      const value = document.getElementById("value").value;
+    document.getElementById("send").addEventListener("click", async () => {
+      const name = document.getElementById("name").value.trim();
+      const item = document.getElementById("item").value.trim();
+      const qty = document.getElementById("qty").value.trim();
       const msg = document.getElementById("msg");
-      msg.textContent = "Submitting...";
-
+      if (!name || !item || !qty) { msg.textContent = "Fill all fields"; return; }
+      msg.textContent = "Sending...";
       try {
-        const res = await fetch(scriptURL, {
+        const res = await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, value }),
+          body: JSON.stringify({ name, item, quantity: qty })
         });
         const data = await res.json();
-        msg.textContent = "✅ " + data.message;
+        if (data && data.success) msg.textContent = "✅ " + data.message;
+        else msg.textContent = "✅ Saved (server replied)";
       } catch (err) {
-        msg.textContent = "❌ Error sending data.";
         console.error(err);
+        msg.textContent = "Error contacting server.";
       }
-    }
+    });
   </script>
 </body>
 </html>
